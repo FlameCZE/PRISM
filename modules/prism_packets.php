@@ -879,8 +879,13 @@ class IS_MST extends Struct // MSg Type - send to LFS to type message or command
     public function pack()
     {
         if (strLen($this->Msg) > 63) {
+            $lastColor = '^8';
             foreach(explode("\n", wordwrap($this->Msg, 63, "\n", true)) as $Msg) {
-                $this->Msg($Msg)->Send();
+                $this->Msg($lastColor.$Msg)->Send();
+                $lastColorPosition = strrpos($Msg, '^');
+                if($lastColorPosition !== false) {
+                    $lastColor = substr($Msg, $lastColorPosition, 2);
+                }
                 $this->Msg('');
             }
 
@@ -906,8 +911,13 @@ class IS_MSX extends Struct // MSg eXtended - like MST but longer (not for comma
     public function pack()
     {
         if (strLen($this->Msg) > 95) {
+            $lastColor = '^8';
             foreach(explode("\n", wordwrap($this->Msg, 95, "\n", true)) as $Msg) {
-                $this->Msg($Msg)->Send();
+                $this->Msg($lastColor.$Msg)->Send();
+                $lastColorPosition = strrpos($Msg, '^');
+                if($lastColorPosition !== false) {
+                    $lastColor = substr($Msg, $lastColorPosition, 2);
+                }
                 $this->Msg('');
             }
         }
@@ -931,8 +941,13 @@ class IS_MSL extends Struct // MSg Local - message to appear on local computer o
     public function pack()
     {
         if (strLen($this->Msg) > 127){
+            $lastColor = '^8';
             foreach(explode("\n", wordwrap($this->Msg, 127, "\n", true)) as $Msg) {
-                $this->Msg($Msg)->Send();
+                $this->Msg($lastColor.$Msg)->Send();
+                $lastColorPosition = strrpos($Msg, '^');
+                if($lastColorPosition !== false) {
+                    $lastColor = substr($Msg, $lastColorPosition, 2);
+                }
                 $this->Msg('');
             }
         }
@@ -961,8 +976,13 @@ class IS_MTC extends Struct // Msg To Connection - hosts only - send to a connec
     public function pack()
     {
         if (strLen($this->Text) > 127) {
+            $lastColor = '^8';
             foreach(explode("\n", wordwrap($this->Text, 127, "\n", true)) as $Text) {
-                $this->Text($Text)->Send();
+                $this->Text($lastColor.$Text)->Send();
+                $lastColorPosition = strrpos($Text, '^');
+                if($lastColorPosition !== false) {
+                    $lastColor = substr($Text, $lastColorPosition, 2);
+                }
                 $this->Text(''); # Prevents the last segment of the word wrap from sending twice
             }
         }
@@ -1132,27 +1152,27 @@ class IS_PLC extends Struct // PLayer Cars
     public $Cars;               # allowed cars - see below
 }; function IS_PLC() { return new IS_PLC; }
 
-define('PLC_UF1', '0x100');
-define('PLC_XFG', '1');
-define('PLC_XRG', '2');
-define('PLC_LX4', '0x20');
-define('PLC_LX6', '0x40');
-define('PLC_RB4', '8');
-define('PLC_FXO', '0x10');
-define('PLC_XRT', '4');
-define('PLC_RAC', '0x200');
-define('PLC_FZ5', '0x400');
-define('PLC_VWS', '0');
-define('PLC_UFR', '0x2000');
-define('PLC_XFR', '0x1000');
-define('PLC_FXR', '0x8000');
-define('PLC_XRR', '0x10000');
-define('PLC_FZR', '0x20000');
-define('PLC_MRT', '0x80');
-define('PLC_FBM', '0x80000');
-define('PLC_FOX', '0x800');
-define('PLC_FO8', '0x4000');
-define('PLC_BF1', '0x40000');
+define('PLC_UF1', 0x100);
+define('PLC_XFG', 1);
+define('PLC_XRG', 2);
+define('PLC_LX4', 0x20);
+define('PLC_LX6', 0x40);
+define('PLC_RB4', 8);
+define('PLC_FXO', 0x10);
+define('PLC_XRT', 4);
+define('PLC_RAC', 0x200);
+define('PLC_FZ5', 0x400);
+define('PLC_VWS', 0);
+define('PLC_UFR', 0x2000);
+define('PLC_XFR', 0x1000);
+define('PLC_FXR', 0x8000);
+define('PLC_XRR', 0x10000);
+define('PLC_FZR', 0x20000);
+define('PLC_MRT', 0x80);
+define('PLC_FBM', 0x80000);
+define('PLC_FOX', 0x800);
+define('PLC_FO8', 0x4000);
+define('PLC_BF1', 0x40000);
 
 
 // HANDICAPS

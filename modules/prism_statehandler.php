@@ -46,9 +46,9 @@ class StateHandler extends PropertyMaster
         # Buttons handles
         ISP_BFN => 'onButtonFunction',
         ISP_BTC => 'onButtonClick',
-        ISP_BTT => 'onButtonText',
+        ISP_BTT => 'onButtonText'
     );
-
+    
     public function dispatchPacket(Struct $Packet)
     {
         if (isset($this->handles[$Packet->Type])) {
@@ -147,7 +147,11 @@ class StateHandler extends PropertyMaster
         # Get information on the clients & players, and their current race state.
         $ISP->SubT(TINY_SST)->Send();    # Send STate info (ISP_STA)
         $ISP->SubT(TINY_NCN)->Send();    # get all connections (ISP_NCN)
-        $ISP->SubT(TINY_NCI)->Send();    # get NCI for all guests (ISP_NCN)
+        if(($PRISM->hosts->getHostById()->getFlags() & ISF_LOCAL) == 0) {
+            #TINY_NCI is only supported in MultiPlayer
+            console('Not local; requesting TINY_NCI');
+            $ISP->SubT(TINY_NCI)->Send();    # get NCI for all guests (ISP_NCN)
+        }
         $ISP->SubT(TINY_NPL)->Send();    # get all players (ISP_NPL)
         $ISP->SubT(TINY_RES)->Send();    # get all results (ISP_RES)
         # Get information on everything else about the state.
@@ -276,7 +280,10 @@ class StateHandler extends PropertyMaster
             # Send out some info requests, to make sure we have all of the baseline information.
             $ISP = IS_TINY()->ReqI(1);
             $ISP->SubT(TINY_NCN)->Send();    # get all connections (ISP_NCN)
-            $ISP->SubT(TINY_NCI)->Send();    # get NCI for all guests (ISP_NCI)
+            if(($PRISM->hosts->getHostById()->getFlags() & ISF_LOCAL) == 0) {
+                #TINY_NCI is only supported in MultiPlayer
+                $ISP->SubT(TINY_NCI)->Send();    # get NCI for all guests (ISP_NCI)
+            }
             $ISP->SubT(TINY_NPL)->Send();    # get all players (ISP_NPL)
             $ISP->SubT(TINY_RES)->Send();    # get all results (ISP_RES)
         }
@@ -465,17 +472,18 @@ class PlayerHandler extends PropertyMaster
     );
 
     // Basicly the IS_NPL Struct.
+    protected $UName;           # UserName
     protected $UCID;            # Connection's Unique ID
-    protected $PType;            # Bit 0 : female / bit 1 : AI / bit 2 : remote
-    protected $Flags;            # Player flags
-    protected $PName;            # Nickname
-    protected $Plate;            # Number plate - NO ZERO AT END!
-    protected $CName;            # Car name
-    protected $SName;            # Skin name - MAX_CAR_TEX_NAME
-    protected $Tyres;            # Compounds
-    protected $HMass;            # Added mass (kg)
-    protected $HTRes;            # Intake restriction
-    protected $Model;            # Driver model
+    protected $PType;           # Bit 0 : female / bit 1 : AI / bit 2 : remote
+    protected $Flags;           # Player flags
+    protected $PName;           # Nickname
+    protected $Plate;           # Number plate - NO ZERO AT END!
+    protected $CName;           # Car name
+    protected $SName;           # Skin name - MAX_CAR_TEX_NAME
+    protected $Tyres;           # Compounds
+    protected $HMass;           # Added mass (kg)
+    protected $HTRes;           # Intake restriction
+    protected $Model;           # Driver model
     protected $Pass;            # Passengers byte
     protected $SetF;            # Setup flags (see below)
     protected $NumP;            # Number in race (same when leaving pits, 1 more if new)
@@ -486,6 +494,7 @@ class PlayerHandler extends PropertyMaster
     public function __construct(IS_NPL $NPL, StateHandler $parent)
     {
         $this->parent = $parent;
+        $this->UName = $parent->clients[$NPL->UCID]->UName;
         $this->onNPL($NPL);
     }
 
@@ -527,6 +536,7 @@ class PlayerHandler extends PropertyMaster
     public function onTakeOverCar(IS_TOC $TOC)
     {
         $this->UCID = $TOC->NewUCID;
+        $this->UName = $this->parent->clients[$TOC->NewUCID]->UName;
         $this->PName = $this->parent->clients[$TOC->NewUCID]->PName;
     }
 
