@@ -43,43 +43,6 @@ function console($line, $EOL = true, $fgcolor = "light_gray", $bgcolor = "black"
     echo "\033[" . $ansi_fgcolor_arr[$fgcolor] . "m\033[" . $ansi_bgcolor_arr[$bgcolor] . "m" . $line . "\033[0m" . (($EOL) ? PHP_EOL : '');
 }
 
-function translateEngine($lang_subdirectory, $languageID, $messageID, $args = array(), $fallback = 'en')
-{
-    $lang_array = array("en", "de", "pt", "fr", "fi", "nn", "nl", "ca", "tr", "es", "it", "da", "cs", "ru", "et", "sr", "el", "pl", "hr", "hu", "br", "sv", "sk", "gl", "sl", "be", "lv", "lt", "zh", "cn", "ja", "ko", "bg", "mx", "uk", "id", "ro");
-    if(!isset($lang_array[$languageID])){
-        return "Unknown Language Selected";
-    }
-    $lang_folder = ROOTPATH . "/data/langs/{$lang_subdirectory}";
-    if(!is_readable($lang_folder)){
-        console("Language Folder for {$lang_subdirectory} is missing or not readable.");
-        return "Language Folder for {$lang_subdirectory} is missing or not readable.";
-    }
-    $lang_file = "{$lang_folder}/{$lang_array[$languageID]}.ini";
-    if(is_readable($lang_file)){
-        $LANG = parse_ini_file ($lang_file);
-    } else {
-        $lang_file = "{$lang_folder}/{$fallback}.ini";
-        if(is_readable($lang_file)){
-            $LANG = parse_ini_file ($lang_file);
-            console("Language File for {$lang_array[$languageID]} in {$lang_subdirectory} is missing or not readable.");
-        } else {
-            console("Language File for {$lang_array[$languageID]} in {$lang_subdirectory} is missing or not readable. No Fallback Available.");
-            return "Language File for {$lang_array[$languageID]} in {$lang_subdirectory} is missing or not readable. No Fallback Available.";
-        }
-    }
-
-    if(isset($LANG[$messageID])){
-        return vsprintf ( $LANG[$messageID], $args);
-    } else {
-        console("Missing Language Entry: {$messageID} in {$lang_array[$languageID]}");
-        if($languageID != $fallback) {
-            return translateEngine($lang_subdirectory, $fallback, $messageID, $args, $fallback);
-        } else {
-            return "Missing Language Entry: {$messageID} in {$lang_array[$languageID]}";
-        }
-    }
-}
-
 function get_dir_structure($path, $recursive = TRUE, $ext = NULL)
 {
     $return = NULL;
